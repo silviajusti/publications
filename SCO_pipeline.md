@@ -1,4 +1,4 @@
-## The pipeline ws written to accomodate several samples at once (i.e. for batch analyses). 
+## The pipeline was written to accomodate several samples at once (i.e. for batch analyses). 
 
 # Illumina reads QC
 Needs a file called list.txt, with one column containing the sample names without spaced.\
