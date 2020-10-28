@@ -64,7 +64,7 @@ Now, replace "sample" with the sample names using the list.txt file.
 ```bash
 for filename in $(cat list.txt)
         do
-sed "s/sample/$filename/g" run_gatbminia_sample.sh >/run_gatbminia_${filename}.sh
+sed "s/sample/$filename/g" run_gatbminia_sample.sh >run_gatbminia_${filename}.sh
 mv run_gatbminia_${filename}.sh ${filename}/
 done
 ```
