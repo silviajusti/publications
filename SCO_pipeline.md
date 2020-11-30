@@ -1,7 +1,7 @@
 ## The pipeline was written to accomodate several samples at once (i.e. for batch analyses). 
 
 # Illumina reads QC
-Needs a file called list.txt, with one column containing the sample names without spaced.\
+Needs a file called list.txt, with one column containing the sample names without space.\
 Input must be fastq format!\
 Assumes commands will always be given within the same folder.\
 First we run [fastqc](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).
@@ -175,7 +175,7 @@ done
 # Results summary
 Run blastn and blastp for all the orthologs identified by orthograph
 Create a run_blast_sample.sh file containing the following commands 
-
+# This script will run blast for one sample at a time
 ```bash
 for dir in `ls done/sample/nt_summarized`
 do
@@ -194,15 +194,42 @@ done
 done
 ```
 
+# The following script will run blast for all samples concurrently 
+
+```bash
+for filename in `ls aa_summarized`
+do
+blastp -query aa_summarized/${filename} -db nr -out aa_summarized/blastp_${filename}  -outfmt "6 std staxid " -max_target_seqs 1
+done
+
+
+for filename in `ls nt_summarized`
+do
+blastn -query nt_summarized/${filename} -db nt -out nt_summarized/blastn_${filename}  -outfmt "6 std staxid " -max_target_seqs 1
+done
+```
+
 Now, replace "sample" with the sample names using the list.txt file.
 
 ```bash
 for filename in $(cat list.txt)
         do
 sed "s/sample/$filename/g" run_blast_sample.sh > run_blast_${filename}.sh
-mv run_blast_${filename}.sh ${filename}/
+mv run_blast_${filename}.sh done/${filename}/
 done
 ```
+
+And submmit all jobs
+
+```bash
+for filename in $(cat list.txt)
+ do
+ cd done/${filename}/
+ qsub run_blast_${filename}.sh
+ cd ../.. 
+ done
+ ```
+
 Concatenate the blast results by specimen
 
 ```bash
