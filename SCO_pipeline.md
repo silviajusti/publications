@@ -131,7 +131,7 @@ perl getAnnoFasta.pl --seqfile=${filename}/${filename}_assembly.fasta ${filename
 ```
 
 # Single-copy orthologs (SCO) search
-Assuming the ortograph database was already created, see [orthoset_construction]([https://github.com/jsoghigian/orthoset_construction])
+Assuming the ortograph database was already created, see [orthoset_construction](https://github.com/jsoghigian/orthoset_construction)
 ### To run orthograph 
 * The directory should contain everything needed to run Orthograph on an input transcriptome, gene set, or sequence capture set.
 * It expects the following:
