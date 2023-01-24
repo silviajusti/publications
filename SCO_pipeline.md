@@ -68,7 +68,7 @@ Note that the resulting assembly.fasta is an alias, and it is a good idea to cop
 ## Genome annotation/gene prediction
 Now, run [Augustus](http://bioinf.uni-greifswald.de/augustus/) to annotate the assembly.
 Create a run_augustus.sh file containing the following commands 
-Make sure to set the species to the closest available for your sample, or use [BUSCO] (https://busco.ezlab.org/) to generate training gene sets
+Make sure to set the species to the closest available for your sample, or use [BUSCO](https://busco.ezlab.org/) to generate training gene sets
 
 ```bash
 augustus --species=aedes $1_assembly.fasta > $1.augustus.out
