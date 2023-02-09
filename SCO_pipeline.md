@@ -92,8 +92,8 @@ qsub -o $filename-augustus-log run_augustus.sh $filename
 done
 ```
 
-Now convert the the sequences from the annotation gff files into fasta using [getAnnoFasta.pl]( https://raw.githubusercontent.com/nextgenusfs/augustus/master/scripts/getAnnoFasta.pl)
-This runs rather quickly, so no need to submit to a queue
+## Now convert the the sequences from the annotation gff files into fasta using [getAnnoFasta.pl]( https://raw.githubusercontent.com/nextgenusfs/augustus/master/scripts/getAnnoFasta.pl)
+
 ```bash
 perl getAnnoFasta.pl --seqfile=$1_assembly.fasta $1.augustus.out
 ```
