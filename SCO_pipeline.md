@@ -106,4 +106,51 @@ qsub -o $filename-getAnnoFasta-log run_getAnnoFasta.sh $filename
 done
 ```
 
+## To run orthograph (assuming you already have the whole folder set up - see bellow). We will use the \*.codingseq output from getAnnoFasta.pl
 
+```bash
+cp samplename.codinseq /Path_to_orthograph_folder/input/samplename.codinseq.fasta
+```
+
+
+
+## Single-copy orthologs (SCO) search
+Assuming the ortograph database was already created, see [orthoset_construction](https://github.com/jsoghigian/orthoset_construction)
+
+### To run orthograph 
+* The directory should contain everything needed to run Orthograph on an input transcriptome, gene set, or sequence capture set.
+* It expects the following:
+1) You have Orthograph and SQLite installed.
+2) Input files are .fasta and in the input directory.
+3) You have properly configured the .conf file for your particular paths to programs. 
+It should not be necessary to change relative paths to files, because that is handled in the script below.
+4) You will use the launch loop script below to identify orthologs across a set of fasta input - you can modify it as needed, 
+or take individual bits and pieces as you need.
+5) You change the paths to the programs as appropriate for your system in the launch loop script below.
+6) You have a ref_tax.txt list of taxa used to create the database
+## You can find an example folder containing everything needed to run orthograph, as described, [here](https://doi.org/10.25573/data.22060787.v1)
+* The script below does the following:
+1) It creates a new config file for an input fasta file.
+2) It runs Orthograph Analyzer, which identifies putative orthologs in the input file. Output is written to output/taxname
+3) It runs Orthograph Reporter, which chooses the best hit based on HMMER3 and BLAST. Output is written to output/taxname
+4) It summarizes the Orthograph results, which produces .nt.summarized and .aa.summarized files for each ortholog... and removes the 
+reference species from the fasta file outputs.  These files will be located within done/taxname/nt_summarized and done/taxname/aa_summarized .  
+5) It then compresses the output directory, because it contains a very large number of files, and a large .sqlite file that takes up a lot of space  
+and then removes the uncompressed directory.
+The database folder will be the relative path to the database sqlite-database on orthograph.config
+
+```bash
+for taxa in $(ls input/*.fasta);
+do
+taxa=$(basename ${taxa} .fasta)
+sed "s/basetax/${taxa}/g" orthograph.conf > configs/orthograph_${taxa}.conf
+orthograph-analyzer --configfile configs/orthograph_${taxa}.conf
+orthograph-reporter --configfile configs/orthograph_${taxa}.conf
+mkdir done/${taxa}
+perl summarize_orthograph_results.pl -i output -o done/${taxa} -c -t -s -u -d ref_tax.txt
+cd output
+tar -czvf ${taxa}.tar.gz ${taxa}/
+rm -r ${taxa}/
+cd ..
+done
+```
