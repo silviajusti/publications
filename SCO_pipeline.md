@@ -1,6 +1,7 @@
-# Read through the pipeline, for examples on analyzing a single sample. Go to the end to see tips on batch submission for several samples. 
-## if this pipeline was helpful, please cite **https://doi.org/10.1371/journal.pone.0247068** and the corresponding citations for the listed software. 
+## This pipelines assumes there is a text file with the sample names within the same foler as the scripts. Sample names should be one per line. 
+### Sample name is just the identifier for the specimen without any file extensions or designations e.g. An_gambiae_1234.fastq.gz - The samplename is An_gambiae_1234). The text file with thebsmaple names will be referred here as sample_list.txt. This can contain only one or several samples. 
 
+## if this pipeline was helpful, please cite **https://doi.org/10.1371/journal.pone.0247068** and the corresponding citations for the listed software. 
 ### This is just a guide on how I do these analyses. I seriously encourage you to read through the manuals and original papers of the software listed below, in dorder to be able to adapt this to your own samples /  research questions. :) 
 ### Note that each server is going to require distinct headers for memory requirements, etc. Also, the server I use, uses qsub to submit the jobs, make sure you comply with your servers requirements for job submission. 
 ### I am also listing a few alternative analytical tools for each step, but the pipeline is based on the ones I use more frequently
@@ -22,7 +23,10 @@ fastqc $1_R2.fastq.gz
 
 # To submit
 ```bash
-qsub run_fastqc.sh samplename
+for filename in $(cat sample_list.txt )
+do  
+qsub -o $filename-fastqc-log run_fastqc.sh $filename
+done
 ```
 
 ## Now trim and filter sequences according to the observed fastqc results
@@ -31,7 +35,7 @@ Create a run_trimmomatic.sh file containing the following commands
 
 Alternatively, use [trim_galore](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)
 
-##The MAXINFO flag will depend on your samples and overall quality and size distribution. Because I wrote this initially for collection samples, the small fragments are quite abundant and important, so I kept the minimum length at 30. 
+## The MAXINFO flag will depend on your samples and overall quality and size distribution. Because I wrote this initially for collection samples, the small fragments are quite abundant and important, so I kept the minimum length at 30. 
 
 ```bash
 runtrimmomatic PE -phred33 $1_R1.fastq.gz $1_R2.fastq.gz $1_R2_paired.fq.gz \
@@ -40,7 +44,10 @@ $1_R1_unpaired.fq.gz $1_R2_paired.fq.gz $1_R2_unpaired.fq.gz MAXINFO:30:0.8
 
 ## To submit
 ```bash
-qsub run_trimmomatic.sh samplename
+for filename in $(cat sample_list.txtt )
+do  
+qsub -o $filename-trimmomati-log run_trimmomatic.sh $filename
+done
 ```
 
 * trimmomatic will output paired and unpaired reads. Only the paired reads will be used for further analyses.
@@ -60,9 +67,12 @@ gatb -1 $1_R1_paired.fq.gz -2 $1_R2_paired.fq.gz --nb-cores 12
 
 ## To submit
 ```bash
-qsub run_gatbminia.sh samplename
+for filename in $(cat sample_list.txtt )
+do  
+qsub -o $filename-gatb-log run_gatb.sh $filename
+done
 ```
-Note that the resulting assembly.fasta is an alias, and it is a good idea to copy it to a new file (cp assembly.fasta samplename_assembly.fasta) Do not use mv, as this will only change the ame of the alias. Also, the pipeline creates a lot of intermediate files that I don't use, so after results inspections, I recommend deleting these to save storage space.
+Note that the resulting assembly.fasta is an alias, and it is a good idea to copy it to a new file (cp assembly.fasta samplename_assembly.fasta) Do not use mv, as this will only change the name of the alias. Also, the pipeline creates a lot of intermediate files that I don't use, so after results inspections, I delete those to save storage space.
 
 
 ## Genome annotation/gene prediction
@@ -74,15 +84,26 @@ Make sure to set the species to the closest available for your sample, or use [B
 augustus --species=aedes $1_assembly.fasta > $1.augustus.out
 ```
 
-Now, replace "sample" with the sample names using the list.txt file.
-
 ## To submit
 ```bash
-qsub run_augustus.sh samplename
+for filename in $(cat sample_list.txtt )
+do  
+qsub -o $filename-augustus-log run_augustus.sh $filename
+done
 ```
 
 Now convert the the sequences from the annotation gff files into fasta using [getAnnoFasta.pl]( https://raw.githubusercontent.com/nextgenusfs/augustus/master/scripts/getAnnoFasta.pl)
 This runs rather quickly, so no need to submit to a queue
 ```bash
-perl getAnnoFasta.pl --seqfile=samplename_assembly.fasta samplename.augustus.out
+perl getAnnoFasta.pl --seqfile=$1_assembly.fasta $1.augustus.out
 ```
+
+## To submit
+```bash
+for filename in $(cat sample_list.txtt )
+do  
+qsub -o $filename-getAnnoFasta-log run_getAnnoFasta.sh $filename
+done
+```
+
+
