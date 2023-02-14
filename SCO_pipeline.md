@@ -1,4 +1,4 @@
-## This pipelines assumes there is a text file with the sample names within the same foler as the scripts. Sample names should be one per line. 
+## This pipelines assume there is a text file with the sample names within the same foler as the scripts. Sample names should be one per line. 
 ### Sample name is just the identifier for the specimen without any file extensions or designations e.g. An_gambiae_1234.fastq.gz - The samplename is An_gambiae_1234). The text file with thebsmaple names will be referred here as sample_list.txt. This can contain only one or several samples. 
 
 ## if this pipeline was helpful, please cite **https://doi.org/10.1371/journal.pone.0247068** and the corresponding citations for the listed software. 
